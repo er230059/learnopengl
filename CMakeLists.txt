@@ -20,10 +20,10 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
     -framework Carbon")
 
 # 指定來源檔案
-set(SOURCES ${CMAKE_SOURCE_DIR}/main.cpp)
+set(SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp)
 
 # GLAD 配置
-add_library(glad glad.c)
+add_library(glad src/glad.c)
 set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
 target_include_directories(glad PUBLIC include)
 
