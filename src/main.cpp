@@ -4,6 +4,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include "shader.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -33,6 +36,9 @@ int main(int argc, char **argv)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     Shader shaders("../shaders/shader.vs", "../shaders/shader.fs");
+    shaders.use();
+    shaders.setInt("texture1", 0);
+    shaders.setInt("texture2", 1);
 
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -72,7 +78,7 @@ int main(int argc, char **argv)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     unsigned int texture1, texture2;
@@ -119,11 +125,15 @@ int main(int argc, char **argv)
         processInput(window);
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+        unsigned int transformLoc = glGetUniformLocation(shaders.ID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        shaders.use();
-        shaders.setInt("texture1", 0);
-        shaders.setInt("texture2", 1);
         glBindVertexArray(VAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
