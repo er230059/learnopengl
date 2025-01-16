@@ -11,6 +11,8 @@
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
+int g_width = 800, g_height = 600;
+
 int main(int argc, char **argv)
 {
     glfwInit();
@@ -19,7 +21,7 @@ int main(int argc, char **argv)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(g_width, g_height, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -155,20 +157,19 @@ int main(int argc, char **argv)
         glm::vec3(1.5f, 0.2f, -1.5f),
         glm::vec3(-1.3f, 1.0f, -1.5f)};
 
-    glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-    glm::mat4 projection;
-    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
         glfwSwapBuffers(window);
         glfwPollEvents();
 
+        glm::mat4 view = glm::mat4(1.0f);
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         int viewlLoc = glGetUniformLocation(shaders.ID, "view");
         glUniformMatrix4fv(viewlLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+        glm::mat4 projection;
+        projection = glm::perspective(glm::radians(45.0f), float(g_width) / float(g_height), 0.1f, 100.0f);
         int projectionlLoc = glGetUniformLocation(shaders.ID, "projection");
         glUniformMatrix4fv(projectionlLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -197,6 +198,8 @@ int main(int argc, char **argv)
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
+    g_width = width;
+    g_height = height;
     glViewport(0, 0, width, height);
 }
 
