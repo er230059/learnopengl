@@ -11,11 +11,12 @@
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void process_input(GLFWwindow *window);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 int g_width = 800, g_height = 600;
 float deltaTime, lastFrame;
 float lastX = g_width / 2, lastY = g_height / 2;
-float pitch, yaw = -90.0f;
+float pitch, yaw = -90.0f, fov = 45.0f;
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -42,9 +43,10 @@ int main(int argc, char **argv)
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetScrollCallback(window, scroll_callback); 
     glEnable(GL_DEPTH_TEST);
 
     Shader shaders("../shaders/shader.vs", "../shaders/shader.fs");
@@ -183,7 +185,7 @@ int main(int argc, char **argv)
         glUniformMatrix4fv(viewlLoc, 1, GL_FALSE, glm::value_ptr(view));
 
         glm::mat4 projection;
-        projection = glm::perspective(glm::radians(45.0f), float(g_width) / float(g_height), 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), float(g_width) / float(g_height), 0.1f, 100.0f);
         int projectionlLoc = glGetUniformLocation(shaders.ID, "projection");
         glUniformMatrix4fv(projectionlLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -264,4 +266,13 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos)
     direction.y = sin(glm::radians(pitch));
     direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(direction);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 60.0f)
+        fov = 60.0f; 
 }
