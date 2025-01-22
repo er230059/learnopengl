@@ -175,7 +175,9 @@ int main(int argc, char **argv)
         glm::vec3(1.5f, 0.2f, -1.5f),
         glm::vec3(-1.3f, 1.0f, -1.5f)};
 
-    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+    glm::vec3 originalLightPos(8.0f, 0.0f, 2.0f);
+    glm::vec3 lightPos = originalLightPos;
+    glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -197,11 +199,20 @@ int main(int argc, char **argv)
 
         cubeShaders.setInt("texture1", 0);
         cubeShaders.setInt("texture2", 1);
-        cubeShaders.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         cubeShaders.setVec3("viewPos", camera.Position);
-        cubeShaders.setVec3("lightPos", lightPos);
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        cubeShaders.setVec3("light.position", lightPos);
+        cubeShaders.setVec3("light.color", lightColor);
+        cubeShaders.setVec3("light.ambient", 1.0f, 1.0f, 1.0f);
+        cubeShaders.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
+        cubeShaders.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+        cubeShaders.setVec3("material.ambient", 0.25f, 0.25f, 0.25f);
+        cubeShaders.setVec3("material.diffuse", 0.4f, 0.4f, 0.4f);
+        cubeShaders.setVec3("material.specular", 0.77f, 0.77f, 0.77f);
+        cubeShaders.setFloat("material.shininess", 64.0f);
+
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBindVertexArray(VAO);
         glActiveTexture(GL_TEXTURE0);
@@ -219,11 +230,15 @@ int main(int argc, char **argv)
 
         // light
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
+        model = glm::rotate(model, currentFrame * glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::translate(model, originalLightPos);
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        lightPos =  glm::vec3(model * glm::vec4(originalLightPos, 1.0f));
         lightShaders.use();
         lightShaders.setMat4("view", view);
         lightShaders.setMat4("projection", projection);
         lightShaders.setMat4("model", model);
+        lightShaders.setVec3("lightColor", lightColor);
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
     }
