@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     unsigned int texture1, texture2;
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load("../container.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load("../fish_container.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glGenTextures(1, &texture1);
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
     }
     stbi_image_free(data);
 
-    data = stbi_load("../fish.png", &width, &height, &nrChannels, 0);
+    data = stbi_load("../fish.jpg", &width, &height, &nrChannels, 0);
     if (data)
     {
         glGenTextures(1, &texture2);
@@ -154,7 +154,7 @@ int main(int argc, char **argv)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else
@@ -192,24 +192,20 @@ int main(int argc, char **argv)
         cubeShaders.use();
 
         glm::mat4 view = camera.GetViewMatrix();
-        cubeShaders.setMat4("view", view);
-
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), float(g_width) / float(g_height), 0.1f, 100.0f);
+        cubeShaders.setMat4("view", view);
         cubeShaders.setMat4("projection", projection);
-
-        cubeShaders.setInt("texture1", 0);
-        cubeShaders.setInt("texture2", 1);
         cubeShaders.setVec3("viewPos", camera.Position);
 
         cubeShaders.setVec3("light.position", lightPos);
         cubeShaders.setVec3("light.color", lightColor);
-        cubeShaders.setVec3("light.ambient", 1.0f, 1.0f, 1.0f);
+        cubeShaders.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         cubeShaders.setVec3("light.diffuse", 1.0f, 1.0f, 1.0f);
         cubeShaders.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
         cubeShaders.setVec3("material.ambient", 0.25f, 0.25f, 0.25f);
-        cubeShaders.setVec3("material.diffuse", 0.4f, 0.4f, 0.4f);
-        cubeShaders.setVec3("material.specular", 0.77f, 0.77f, 0.77f);
+        cubeShaders.setInt("material.diffuse", 0);
+        cubeShaders.setInt("material.specular", 1);
         cubeShaders.setFloat("material.shininess", 64.0f);
 
         glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -233,7 +229,7 @@ int main(int argc, char **argv)
         model = glm::rotate(model, currentFrame * glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::translate(model, originalLightPos);
         model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-        lightPos =  glm::vec3(model * glm::vec4(originalLightPos, 1.0f));
+        lightPos = glm::vec3(model * glm::vec4(originalLightPos, 1.0f));
         lightShaders.use();
         lightShaders.setMat4("view", view);
         lightShaders.setMat4("projection", projection);
